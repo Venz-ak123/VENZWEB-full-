@@ -1,1 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venz AI - Powerful AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar 3D animation */
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            transform: perspective(1000px) rotateY(0deg);
+            transform-origin: left;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar:hover {
+            transform: perspective(1000px) rotateY(-5deg);
+            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .nav-menu {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            border-left: 3px solid transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: white;
+        }
+
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left-color: white;
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            transition: margin-left 0.3s;
+            padding: 2rem;
+        }
+
+        /* Card styling */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Chat interface */
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .chat-messages {
+            height: 500px;
+            overflow-y: auto;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .user-message {
+            background-color: var(--primary);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-message {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .chat-input button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-input button:hover {
+            background-color: #4f46e5;
+        }
+
+        /* API key form */
+        .api-key-form {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        /* Split bill calculator */
+        .split-bill-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Game section */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .game-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .game-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .game-btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .game-board {
+            margin-top: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 240px;
+                transform: perspective(800px) rotateY(0deg);
+            }
+            .main-content {
+                margin-left: 240px;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+                transform: none;
+            }
+            .sidebar.active {
+                width: 240px;
+                transform: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fas fa-robot text-purple-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold">Venz AI</h3>
+            </div>
+            <button class="text-white md:hidden" id="sidebarToggle">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" data-section="home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" data-section="chat">
+                <i class="fas fa-comment-dots"></i>
+                <span>AI Chat</span>
+            </div>
+            <div class="nav-item" data-section="api">
+                <i class="fas fa-key"></i>
+                <span>API Settings</span>
+            </div>
+            <div class="nav-item" data-section="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-section="split-bill">
+                <i class="fas fa-receipt"></i>
+                <span>Split Bill</span>
+            </div>
+            <div class="nav-item" data-section="ecommerce">
+                <i class="fas fa-shopping-cart"></i>
+                <span>E-commerce</span>
+            </div>
+            <div class="nav-item" data-section="games">
+                <i class="fas fa-gamepad"></i>
+                <span>Games</span>
+            </div>
+            <div class="nav-item" data-section="portfolio">
+                <i class="fas fa-briefcase"></i>
+                <span>Portfolio</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Mobile Menu Button -->
+        <button class="fixed top-4 left-4 bg-white p-2 rounded-lg shadow-lg z-50 md:hidden" id="mobileMenuBtn">
+            <i class="fas fa-bars text-purple-600"></i>
+        </button>
+
+        <!-- Home Section -->
+        <section id="home-section" class="content-section">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Welcome to Venz AI</h2>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">v2.0</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>About Venz AI</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-gray-600 mb-4">
+                            Venz AI is an advanced artificial intelligence assistant powered by Groq's cutting-edge technology. 
+                            Our platform delivers lightning-fast responses and unparalleled natural language understanding.
+                        </p>
+                        <div class="flex items-center space-x-4">
+                            <img src="https://placehold.co/600x400" alt="Tech-savvy young professional working with artificial intelligence dashboard showing data visualizations" class="w-24 h-24 object-cover rounded-lg">
+                            <div>
+                                <h4 class="font-semibold">Your AI Companion</h4>
+                                <p class="text-sm text-gray-500">Available 24/7 to assist with any task</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Key Features</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-bolt text-purple-500 mt-1 mr-2"></i>
+                                <span>Lightning-fast responses with Groq engine</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-robot text-purple-500 mt-1 mr-2"></i>
+                                <span>Advanced AI capabilities for various tasks</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-shield-alt text-purple-500 mt-1 mr-2"></i>
+                                <span>Secure API key management</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-gamepad text-purple-500 mt-1 mr-2"></i>
+                                <span>Entertainment with built-in games</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-chart-line text-purple-500 mt-1 mr-2"></i>
+                                <span>Data analysis dashboard</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-8">
+                <div class="card-header">
+                    <h3>Getting Started</h3>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-lg bg-purple-50 border border-purple-100 flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                                <i class="fas fa-key text-purple-600"></i>
+                            </div>
+                            <h4 class="font-semibold mb-1">1. Set API Key</h4>
+                            <p class="text-sm text-gray-600">Configure your Groq API key in settings</p>
+                        </div>
+                        <div class="p-4 rounded-lg bg-purple-50 border border-purple-100 flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                                <i class="fas fa-comment-dots text-purple-600"></i>
+                            </div>
+                            <h4 class="font-semibold mb-1">2. Start Chatting</h4>
+                            <p class="text-sm text-gray-600">Interact with our powerful AI assistant</p>
+                        </div>
+                        <div class="p-4 rounded-lg bg-purple-50 border border-purple-100 flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                                <i class="fas fa-magic text-purple-600"></i>
+                            </div>
+                            <h4 class="font-semibold mb-1">3. Explore Features</h4>
+                            <p class="text-sm text-gray-600">Discover all Venz AI has to offer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Chat Section (Hidden by default) -->
+        <section id="chat-section" class="content-section hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">AI Chat</h2>
+                <div class="flex items-center space-x-2">
+                    <span class="bg-green-500 w-3 h-3 rounded-full animate-pulse"></span>
+                    <span class="text-sm text-gray-500">Connected</span>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">
+                        <strong>Venz AI:</strong> Hello! I'm Venz AI, your advanced assistant. How can I help you today?
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="userInput" placeholder="Type your message here..." class="flex-1">
+                    <button id="sendBtn"><i class="fas fa-paper-plane mr-2"></i> Send</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Key Section (Hidden by default) -->
+        <section id="api-section" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">API Settings</h2>
+            
+            <div class="api-key-form card">
+                <div class="card-header">
+                    <h3>Configure Your Groq API Key</h3>
+                </div>
+                <div class="card-body">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="apiKey" class="block text-sm font-medium text-gray-700 mb-1">Groq API Key</label>
+                            <input type="password" id="apiKey" placeholder="Enter your Groq API key" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label for="apiModel" class="block text-sm font-medium text-gray-700 mb-1">Model Version</label>
+                            <select id="apiModel" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                                <option value="mixtral-8x7b-32768">Mixtral-8x7b-32768</option>
+                                <option value="llama2-70b-4096">Llama2-70b-4096</option>
+                                <option value="gemma-7b-it">Gemma-7b-it</option>
+                            </select>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button id="saveApiBtn" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center">
+                                <i class="fas fa-save mr-2"></i> Save Settings
+                            </button>
+                            <button id="testApiBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center">
+                                <i class="fas fa-bolt mr-2"></i> Test Connection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-6">
+                <div class="card-header">
+                    <h3>API Documentation</h3>
+                </div>
+                <div class="card-body">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Endpoint</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">/v1/chat/completions</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">POST</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Main chat endpoint for AI conversations</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">/v1/models</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">GET</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">List available models</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">/v1/embeddings</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">POST</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Generate text embeddings</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section (Hidden by default) -->
+        <section id="dashboard-section" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">Dashboard</h2>
+            
+            <div class="dashboard-grid mb-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>API Usage</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="h-64 flex items-center justify-center">
+                            <img src="https://placehold.co/600x400?text=Usage+Analytics+Chart" alt="Data visualization chart showing API usage metrics with colorful bars and lines" class="w-full h-full object-contain">
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-2 gap-4">
+                            <button class="p-3 bg-blue-100 text-blue-800 rounded-lg flex flex-col items-center justify-center hover:bg-blue-200 transition">
+                                <i class="fas fa-code text-xl mb-2"></i>
+                                <span class="text-sm">Create API</span>
+                            </button>
+                            <button class="p-3 bg-purple-100 text-purple-800 rounded-lg flex flex-col items-center justify-center hover:bg-purple-200 transition">
+                                <i class="fas fa-chart-bar text-xl mb-2"></i>
+                                <span class="text-sm">Analyze Data</span>
+                            </button>
+                            <button class="p-3 bg-green-100 text-green-800 rounded-lg flex flex-col items-center justify-center hover:bg-green-200 transition">
+                                <i class="fas fa-file-export text-xl mb-2"></i>
+                                <span class="text-sm">Export Reports</span>
+                            </button>
+                            <button class="p-3 bg-yellow-100 text-yellow-800 rounded-lg flex flex-col items-center justify-center hover:bg-yellow-200 transition">
+                                <i class="fas fa-cog text-xl mb-2"></i>
+                                <span class="text-sm">Settings</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Activity</h3>
+                </div>
+                <div class="card-body">
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-code text-purple-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="font-medium">New API created</h4>
+                                <p class="text-sm text-gray-500">Created chat completion endpoint - 2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-bolt text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="font-medium">API test successful</h4>
+                                <p class="text-sm text-gray-500">Tested connection to Groq servers - 5 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-cloud-upload-alt text-green-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="font-medium">Data exported</h4>
+                                <p class="text-sm text-gray-500">Exported usage data as CSV - Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Split Bill Section (Hidden by default) -->
+        <section id="split-bill-section" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">Split Bill Calculator</h2>
+            
+            <div class="split-bill-container card">
+                <div class="card-header">
+                    <h3>Calculate Shared Expenses</h3>
+                </div>
+                <div class="card-body">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+                            <input type="number" id="totalAmount" placeholder="0.00" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of People</label>
+                            <input type="number" id="numberOfPeople" placeholder="1" min="1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tip Percentage</label>
+                            <select id="tipPercentage" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                                <option value="0">No Tip</option>
+                                <option value="10">10%</option>
+                                <option value="15" selected>15%</option>
+                                <option value="18">18%</option>
+                                <option value="20">20%</option>
+                                <option value="25">25%</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="roundUp" class="rounded text-purple-600 focus:ring-purple-500">
+                                <span class="ml-2 text-sm text-gray-700">Round up to nearest dollar</span>
+                            </label>
+                        </div>
+                        <button id="calculateSplit" class="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center justify-center">
+                            <i class="fas fa-calculator mr-2"></i> Calculate Split
+                        </button>
+                        <div class="mt-4 p-4 bg-gray-50 rounded-lg hidden" id="resultContainer">
+                            <h4 class="font-semibold text-lg mb-2">Results</h4>
+                            <div class="flex justify-between">
+                                <span>Total per person:</span>
+                                <span class="font-semibold" id="totalPerPerson">$0.00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Tip per person:</span>
+                                <span class="font-semibold" id="tipPerPerson">$0.00</span>
+                            </div>
+                            <div class="flex justify-between border-t border-gray-200 mt-2 pt-2">
+                                <span class="font-semibold">Grand total per person:</span>
+                                <span class="font-semibold text-purple-600" id="grandTotalPerPerson">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- E-commerce Section (Hidden by default) -->
+        <section id="ecommerce-section" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">E-commerce Store</h2>
+            
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold">My Products</h3>
+                <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Add Product
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="card hover:shadow-lg transition">
+                    <div class="card-image">
+                        <img src="https://placehold.co/600x400" alt="Premium wireless headphones with noise cancellation in black and silver" class="w-full h-48 object-cover">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="font-semibold text-lg mb-1">Premium Headphones</h4>
+                        <p class="text-gray-600 text-sm mb-2">Noise-cancelling wireless headphones with 30hr battery</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-purple-600">$199.99</span>
+                            <button class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm hover:bg-purple-200 transition">
+                                <i class="fas fa-shopping-cart mr-1"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card hover:shadow-lg transition">
+                    <div class="card-image">
+                        <img src="https://placehold.co/600x400" alt="Smartwatch with fitness tracking capabilities and AMOLED display" class="w-full h-48 object-cover">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="font-semibold text-lg mb-1">Smart Watch</h4>
+                        <p class="text-gray-600 text-sm mb-2">Fitness tracking with heart rate monitor</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-purple-600">$149.99</span>
+                            <button class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm hover:bg-purple-200 transition">
+                                <i class="fas fa-shopping-cart mr-1"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card hover:shadow-lg transition">
+                    <div class="card-image">
+                        <img src="https://placehold.co/600x400" alt="Compact portable bluetooth speaker with 360-degree sound in blue color" class="w-full h-48 object-cover">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="font-semibold text-lg mb-1">Bluetooth Speaker</h4>
+                        <p class="text-gray-600 text-sm mb-2">Portable 360° sound with 12hr battery</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-purple-600">$79.99</span>
+                            <button class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm hover:bg-purple-200 transition">
+                                <i class="fas fa-shopping-cart mr-1"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card hover:shadow-lg transition">
+                    <div class="card-image">
+                        <img src="https://placehold.co/600x400" alt="Modern minimalist laptop stand made of bamboo wood for ergonomic workspace" class="w-full h-48 object-cover">
+                    </div>
+                    <div class="card-body">
+                        <h4 class="font-semibold text-lg mb-1">Laptop Stand</h4>
+                        <p class="text-gray-600 text-sm mb-2">Ergonomic bamboo laptop stand</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-purple-600">$39.99</span>
+                            <button class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm hover:bg-purple-200 transition">
+                                <i class="fas fa-shopping-cart mr-1"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-8">
+                <div class="card-header">
+                    <h3>Order Summary</h3>
+                </div>
+                <div class="card-body">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">Premium Headphones</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">$199.99</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">1</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">$199.99</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">Smart Watch</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">$149.99</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">2</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">$299.98</td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="bg-gray-50">
+                                <tr>
+                                    <td colspan="3" class="px-6 py-4 text-right font-semibold">Subtotal</td>
+                                    <td class="px-6 py-4 font-semibold">$499.97</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="px-6 py-4 text-right font-semibold">Shipping</td>
+                                    <td class="px-6 py-4">$9.99</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="px-6 py-4 text-right font-semibold">Total</td>
+                                    <td class="px-6 py-4 font-semibold text-lg text-purple-600">$509.96</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center">
+                            <i class="fas fa-credit-card mr-2"></i> Proceed to Checkout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Games Section (Hidden by default) -->
+        <section id="games-section" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">Games</h2>
+            
+            <div class="game-selector">
+                <button class="game-btn" data-game="blog-builder">
+                    <i class="fas fa-blog mr-2"></i> Blog Builder
+                </button>
+                <button class="game-btn" data-game="snake">
+                    <i class="fas fa-snake mr-2"></i> Snake Game
+                </button>
+                <button class="game-btn" data-game="tic-tac-toe">
+                    <i class="fas fa-times mr-2"></i> Tic Tac Toe
+                </button>
+            </div>
+
+            <div class="game-container">
+                <!-- Blog Builder Game -->
+                <div id="blog-builder-game" class="game-content hidden w-full">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Blog Builder</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Blog Title</label>
+                                    <input type="text" id="blogTitle" placeholder="Enter blog title" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 mb-4">
+                                    
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Blog Content</label>
+                                    <textarea id="blogContent" rows="8" placeholder="Write your blog content here..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 mb-4"></textarea>
+                                    
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                    <select id="blogCategory" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 mb-4">
+                                        <option value="technology">Technology</option>
+                                        <option value="travel">Travel</option>
+                                        <option value="food">Food</option>
+                                        <option value="lifestyle">Lifestyle</option>
+                                        <option value="business">Business</option>
+                                    </select>
+
+                                    <button id="generateBlog" class="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                                        <i class="fas fa-magic mr-2"></i> Generate Blog
+                                    </button>
+                                </div>
+                                <div>
+                                    <div class="border border-gray-200 rounded-lg p-4 h-full">
+                                        <h3 id="previewTitle" class="text-xl font-bold mb-4">Your Blog Preview</h3>
+                                        <div id="previewContent" class="prose max-w-none">
+                                            <p class="text-gray-600 italic">Your blog content will appear here...</p>
+                                        </div>
+                                        <div class="mt-4 pt-4 border-t border-gray-200">
+                                            <span id="previewCategory" class="inline-block bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-600">Category</span>
+                                        </div>
+                                        <img src="https://placehold.co/600x400" alt="Colorful abstract background representing creative blog content" class="mt-4 w-full rounded-lg" id="previewImage">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Snake Game -->
+                <div id="snake-game" class="game-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="flex justify-between items-center">
+                                <h3>Snake Game</h3>
+                                <div class="flex items-center space-x-4">
+                                    <span id="snakeScore">Score: 0</span>
+                                    <button id="snakeRestart" class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm hover:bg-purple-200 transition">
+                                        <i class="fas fa-redo mr-1"></i> Restart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="snakeCanvas" width="400" height="400" class="border border-gray-200 bg-white mx-auto"></canvas>
+                        </div>
+                        <div class="card-footer p-4 border-t border-gray-200">
+                            <p class="text-sm text-center text-gray-600">
+                                Use arrow keys or WASD to control the snake. Eat the food to grow and earn points!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tic Tac Toe Game -->
+                <div id="tic-tac-toe-game" class="game-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="flex justify-between items-center">
+                                <h3>Tic Tac Toe</h3>
+                                <div class="flex items-center space-x-4">
+                                    <span id="tttStatus">Player X's turn</span>
+                                    <button id="tttRestart" class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm hover:bg-purple-200 transition">
+                                        <i class="fas fa-redo mr-1"></i> Restart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid grid-cols-3 grid-rows-3 gap-2 w-64 h-64 mx-auto">
+                                <div class="bg-gray-100 border border-gray-200 flex items-center justify-center text-3xl font-bold hover:bg-gray-50 cursor-pointer" data-cell-index="0"></div>
+                                <div class="bg-gray-100 border border-gray-200 flex items-center justify-center text-3xl font-bold hover:bg-gray-50 cursor-pointer" data-cell-index="1"></div>
+                                <div class="bg-gray-100 border border-gray-200 flex items-center justify-center text-3xl font-bold hover:bg-gray-50 cursor-pointer" data-cell-index="2"></div>
+                                <div class="bg-gray-100 border border-gray-200 flex items-center justify-center text-3xl font-bold hover:bg-gray-50 cursor-pointer" data-cell-index="3"></div>
+                                <div class="bg-gray-100 border border-gray-200 flex items-center justify-center text-3xl font-bold hover:bg-gray-50 cursor-pointer" data-cell-index="4"></div>
+                                <div class="bg-gray-100 border border-gray-200 flex items-center justify-center text-3xl font-bold hover:bg-gray-50 cursor-pointer" data-cell-index="5"></div>
+                                <div class="bg-gray-100 border border-gray-200 flex items-center justify-center text-3xl font-bold hover:bg-gray-50 cursor-pointer" data-cell-index="6"></div>
+                                <div class="bg-gray-100 border border-gray-200 flex items-center justify-center text-3xl font-bold hover:bg-gray-50 cursor-pointer" data-cell-index="7"></div>
+                                <div class="bg-gray-100 border border-gray-200 flex items-center justify-center text-3xl font-bold hover:bg-gray-50 cursor-pointer" data-cell-index="8"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio Section (Hidden by default) -->
+        <section id="portfolio-section" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8">My Portfolio</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>About Me</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <img src="https://placehold.co/300x300" alt="Professional headshot of a software developer with a friendly smile" class="w-32 h-32 object-cover rounded-full border-4 border-purple-100">
+                            <div>
+                                <h4 class="text-xl font-bold mb-2">Venz AI Developer</h4>
+                                <p class="text-gray-600 mb-3">AI & Full Stack Developer with 5+ years of experience building intelligent applications and systems.</p>
+                                <div class="flex space-x-4">
+                                    <a href="#" class="text-purple-600 hover:text-purple-800">
+                                        <i class="fab fa-github text-xl"></i>
+                                    </a>
+                                    <a href="#" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fab fa-linkedin text-xl"></i>
+                                    </a>
+                                    <a href="#" class="text-red-600 hover:text-red-800">
+                                        <i class="fab fa-youtube text-xl"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Contact</h3>
+                    </div>
+                    <div class="card-body">
+                        <form class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                                <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <input type="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                                <textarea rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                                <i class="fas fa-paper-plane mr-2"></i> Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-8">
+                <div class="card-header">
+                    <h3>My Projects</h3>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="h-40 bg-purple-50 rounded-lg mb-4 flex items-center justify-center">
+                                <img src="https://placehold.co/400x300" alt="Dashboard interface of an AI analytics platform with colorful charts and graphs" class="w-full h-full object-cover rounded-lg">
+                            </div>
+                            <h4 class="font-bold mb-2">AI Analytics Dashboard</h4>
+                            <p class="text-gray-600 text-sm mb-3">Advanced analytics platform for AI model performance</p>
+                            <div class="flex space-x-2">
+                                <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">AI</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">JavaScript</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">React</span>
+                            </div>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="h-40 bg-blue-50 rounded-lg mb-4 flex items-center justify-center">
+                                <img src="https://placehold.co/400x300" alt="Mobile app screens showing a modern chat interface with conversation bubbles" class="w-full h-full object-cover rounded-lg">
+                            </div>
+                            <h4 class="font-bold mb-2">AI Chat Mobile App</h4>
+                            <p class="text-gray-600 text-sm mb-3">Mobile application for AI-powered conversations</p>
+                            <div class="flex space-x-2">
+                                <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">AI</span>
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Flutter</span>
+                                <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Firebase</span>
+                            </div>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="h-40 bg-green-50 rounded-lg mb-4 flex items-center justify-center">
+                                <img src="https://placehold.co/400x300" alt="Code editor with syntax highlighting showing machine learning implementation" class="w-full h-full object-cover rounded-lg">
+                            </div>
+                            <h4 class="font-bold mb-2">Machine Learning API</h4>
+                            <p class="text-gray-600 text-sm mb-3">Rest API for machine learning model predictions</p>
+                            <div class="flex space-x-2">
+                                <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">AI</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Python</span>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">FastAPI</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const contentSections = document.querySelectorAll('.content-section');
+        const navItems = document.querySelectorAll('.nav-item');
+        const apiKeyInput = document.getElementById('apiKey');
+        const apiModelSelect = document.getElementById('apiModel');
+        const saveApiBtn = document.getElementById('saveApiBtn');
+        const testApiBtn = document.getElementById('testApiBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const totalAmountInput = document.getElementById('totalAmount');
+        const numberOfPeopleInput = document.getElementById('numberOfPeople');
+        const tipPercentageSelect = document.getElementById('tipPercentage');
+        const roundUpCheckbox = document.getElementById('roundUp');
+        const calculateSplitBtn = document.getElementById('calculateSplit');
+        const resultContainer = document.getElementById('resultContainer');
+        const totalPerPerson = document.getElementById('totalPerPerson');
+        const tipPerPerson = document.getElementById('tipPerPerson');
+        const grandTotalPerPerson = document.getElementById('grandTotalPerPerson');
+        const gameSelectorButtons = document.querySelectorAll('[data-game]');
+        const gameContents = document.querySelectorAll('.game-content');
+        const generateBlogBtn = document.getElementById('generateBlog');
+        const blogTitleInput = document.getElementById('blogTitle');
+        const blogContentInput = document.getElementById('blogContent');
+        const blogCategorySelect = document.getElementById('blogCategory');
+        const previewTitle = document.getElementById('previewTitle');
+        const previewContent = document.getElementById('previewContent');
+        const previewCategory = document.getElementById('previewCategory');
+        const snakeCanvas = document.getElementById('snakeCanvas');
+        const snakeScore = document.getElementById('snakeScore');
+        const snakeRestartBtn = document.getElementById('snakeRestart');
+        const tttStatus = document.getElementById('tttStatus');
+        const tttRestartBtn = document.getElementById('tttRestart');
+        const tttCells = document.querySelectorAll('[data-cell-index]');
+
+        // Navigation functionality
+        function showSection(sectionId) {
+            contentSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+        }
+
+        function setActiveNavItem(item) {
+            navItems.forEach(navItem => {
+                navItem.classList.remove('active');
+            });
+            item.classList.add('active');
+        }
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.getAttribute('data-section');
+                showSection(section);
+                setActiveNavItem(item);
+                localStorage.setItem('lastSection', section);
+            });
+        });
+
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            mobileMenuBtn.classList.add('hidden');
+        });
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            mobileMenuBtn.classList.remove('hidden');
+        });
+
+        // API Key Management
+        saveApiBtn.addEventListener('click', () => {
+            const apiKey = apiKeyInput.value.trim();
+            const model = apiModelSelect.value;
+            
+            if (apiKey === '') {
+                alert('Please enter your Groq API key');
+                return;
+            }
+
+            localStorage.setItem('venzai_api_key', apiKey);
+            localStorage.setItem('venzai_model', model);
+            alert('API settings saved successfully!');
+        });
+
+        testApiBtn.addEventListener('click', () => {
+            const apiKey = apiKeyInput.value.trim();
+            
+            if (apiKey === '') {
+                alert('Please enter your Groq API key first');
+                return;
+            }
+
+            alert('Testing connection... This is just a demo. In a real app, we would test the connection to Groq servers.');
+        });
+
+        // Load saved API settings if available
+        if (localStorage.getItem('venzai_api_key')) {
+            apiKeyInput.value = localStorage.getItem('venzai_api_key');
+            apiModelSelect.value = localStorage.getItem('venzai_model') || 'mixtral-8x7b-32768';
+        }
+
+        // Chat functionality
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            messageDiv.innerHTML = `<strong>${isUser ? 'You:' : 'Venz AI:'}</strong> ${content}`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            addMessage(message, true);
+            userInput.value = '';
+
+            // Simulate AI response after a short delay
+            setTimeout(() => {
+                const responses = [
+                    "I'm glad you asked about that. Venz AI is designed to provide fast and accurate responses to all your queries.",
+                    "That's an interesting question. Based on my analysis, I would recommend considering multiple perspectives before making a decision.",
+                    "Venz AI is powered by Groq's advanced large language models, allowing me to process information quickly and efficiently.",
+                    "If you're interested in learning more, I can provide you with detailed documentation about our API and integration options.",
+                    "Let me help you with that. Would you like me to break this down into smaller steps for better understanding?"
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addMessage(randomResponse);
+            }, 1000);
+        }
+
+        // Split Bill Calculator
+        calculateSplitBtn.addEventListener('click', () => {
+            const total = parseFloat(totalAmountInput.value) || 0;
+            const people = parseInt(numberOfPeopleInput.value) || 1;
+            const tipPercentage = parseFloat(tipPercentageSelect.value) || 0;
+            const roundUp = roundUpCheckbox.checked;
+
+            const tipAmount = total * (tipPercentage / 100);
+            const totalWithTip = total + tipAmount;
+            
+            let perPerson = totalWithTip / people;
+            if (roundUp) {
+                perPerson = Math.ceil(perPerson);
+            }
+            
+            const perPersonBeforeTip = (total / people).toFixed(2);
+            const perPersonTip = (tipAmount / people).toFixed(2);
+            const perPersonTotal = roundUp ? perPerson.toFixed(2) : (totalWithTip / people).toFixed(2);
+            
+            totalPerPerson.textContent = `$${perPersonBeforeTip}`;
+            tipPerPerson.textContent = `$${perPersonTip}`;
+            grandTotalPerPerson.textContent = `$${perPersonTotal}`;
+            
+            resultContainer.classList.remove('hidden');
+        });
+
+        // Game selector
+        gameSelectorButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const game = button.getAttribute('data-game');
+                showGame(game);
+            });
+        });
+
+        function showGame(game) {
+            gameContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`${game}-game`).classList.remove('hidden');
+        }
+
+        // Blog Builder Game
+        generateBlogBtn.addEventListener('click', () => {
+            const title = blogTitleInput.value.trim() || 'Untitled Blog Post';
+            const content = blogContentInput.value.trim() || 'This is a sample blog post content. Write your own content to customize this section.';
+            const category = blogCategorySelect.options[blogCategorySelect.selectedIndex].text;
+
+            previewTitle.textContent = title;
+            previewContent.innerHTML = `<p>${content}</p><p>${loremIpsumParagraph()}</p>`;
+            previewCategory.textContent = category;
+            previewCategory.className = 'inline-block px-3 py-1 rounded-full text-sm';
+            
+            // Set category-specific color
+            switch(blogCategorySelect.value) {
+                case 'technology':
+                    previewCategory.classList.add('bg-blue-100', 'text-blue-800');
+                    break;
+                case 'travel':
+                    previewCategory.classList.add('bg-green-100', 'text-green-800');
+                    break;
+                case 'food':
+                    previewCategory.classList.add('bg-red-100', 'text-red-800');
+                    break;
+                case 'lifestyle':
+                    previewCategory.classList.add('bg-purple-100', 'text-purple-800');
+                    break;
+                case 'business':
+                    previewCategory.classList.add('bg-yellow-100', 'text-yellow-800');
+                    break;
+                default:
+                    previewCategory.classList.add('bg-gray-100', 'text-gray-800');
+            }
+
+            // Set placeholder image based on category
+            document.getElementById('previewImage').src = `https://placehold.co/600x400?text=${encodeURIComponent(title)}`;
+        });
+
+        function loremIpsumParagraph() {
+            return "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim.";
+        }
+
+        // Snake Game
+        let snakeScoreValue = 0;
+        let snakeGame;
+        if (snakeCanvas) {
+            const ctx = snakeCanvas.getContext('2d');
+            const box = 20;
+            let snake = [{x: 9*box, y:10*box}];
+            let food = {
+                x: Math.floor(Math.random()*20)*box,
+                y: Math.floor(Math.random()*20)*box
+            };
+            let d;
+            let game;
+
+            function drawGame() {
+                // Draw canvas
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+                
+                // Draw snake
+                for (let i=0; i<snake.length; i++) {
+                    ctx.fillStyle = (i === 0) ? "green" : "purple";
+                    ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                    
+                    ctx.strokeStyle = "white";
+                    ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+                }
+                
+                // Draw food
+                ctx.fillStyle = "red";
+                ctx.fillRect(food.x, food.y, box, box);
+                
+                // Current snake position
+                let snakeX = snake[0].x;
+                let snakeY = snake[0].y;
+                
+                // Direction handling
+                if (d === "LEFT") snakeX -= box;
+                if (d === "UP") snakeY -= box;
+                if (d === "RIGHT") snakeX += box;
+                if (d === "DOWN") snakeY += box;
+                
+                // Check collision with food
+                if (snakeX === food.x && snakeY === food.y) {
+                    snakeScoreValue++;
+                    snakeScore.textContent = `Score: ${snakeScoreValue}`;
+                    food = {
+                        x: Math.floor(Math.random()*20)*box,
+                        y: Math.floor(Math.random()*20)*box
+                    };
+                } else {
+                    // Remove tail
+                    snake.pop();
+                }
+                
+                // Create new head
+                let newHead = {
+                    x: snakeX,
+                    y: snakeY
+                };
+                
+                // Game over conditions
+                if (snakeX < 0 || snakeY < 0 || snakeX >= snakeCanvas.width || snakeY >= snakeCanvas.height 
+                    || collision(newHead, snake)) {
+                    clearInterval(game);
+                }
+                
+                snake.unshift(newHead);
+            }
+            
+            function collision(head, array) {
+                for (let i = 0; i < array.length; i++) {
+                    if (head.x === array[i].x && head.y === array[i].y) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            function startGame() {
+                snake = [{x: 9*box, y:10*box}];
+                snakeScoreValue = 0;
+                snakeScore.textContent = `Score: ${snakeScoreValue}`;
+                d = undefined;
+                food = {
+                    x: Math.floor(Math.random()*20)*box,
+                    y: Math.floor(Math.random()*20)*box
+                };
+                
+                if (game) clearInterval(game);
+                game = setInterval(drawGame, 100);
+            }
+            
+            document.addEventListener("keydown", direction);
+            
+            function direction(event) {
+                if (event.keyCode === 37 && d !== "RIGHT") {
+                    d = "LEFT";
+                } else if (event.keyCode === 38 && d !== "DOWN") {
+                    d = "UP";
+                } else if (event.keyCode === 39 && d !== "LEFT") {
+                    d = "RIGHT";
+                } else if (event.keyCode === 40 && d !== "UP") {
+                    d = "DOWN";
+                }
+            }
+            
+            snakeRestartBtn.addEventListener('click', startGame);
+            
+            // Initialize game when shown
+            if (document.getElementById('snake-game').classList.contains('hidden') === false) {
+                startGame();
+            }
+        }
+
+        // Tic Tac Toe Game
+        const X_CLASS = 'x';
+        const O_CLASS = 'o';
+        const WINNING_COMBINATIONS = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+        let circleTurn;
+
+        function startTTTGame() {
+            circleTurn = false;
+            tttCells.forEach(cell => {
+                cell.classList.remove(X_CLASS);
+                cell.classList.remove(O_CLASS);
+                cell.removeEventListener('click', handleClick);
+                cell.addEventListener('click', handleClick, { once: true });
+            });
+            setBoardHoverClass();
+            tttStatus.textContent = "Player X's turn";
+        }
+
+        function handleClick(e) {
+            const cell = e.target;
+            const currentClass = circleTurn ? O_CLASS : X_CLASS;
+            
+            // Place mark
+            placeMark(cell, currentClass);
+            
+            // Check for win
+            if (checkWin(currentClass)) {
+                endGame(false);
+            } else if (isDraw()) { // Check for draw
+                endGame(true);
+            } else { // Switch turns
+                swapTurns();
+                setBoardHoverClass();
+            }
+        }
+
+        function endGame(draw) {
+            if (draw) {
+                tttStatus.textContent = "Game ended in a draw!";
+            } else {
+                tttStatus.textContent = `${circleTurn ? "O" : "X"} wins!`;
+            }
+        }
+
+        function isDraw() {
+            return [...tttCells].every(cell => {
+                return cell.classList.contains(X_CLASS) || cell.classList.contains(O_CLASS);
+            });
+        }
+
+        function placeMark(cell, currentClass) {
+            cell.classList.add(currentClass);
+            cell.innerHTML = `<span class="text-4xl">${currentClass.toUpperCase()}</span>`;
+        }
+
+        function swapTurns() {
+            circleTurn = !circleTurn;
+            tttStatus.textContent = `${circleTurn ? "Player O's" : "Player X's"} turn`;
+        }
+
+        function setBoardHoverClass() {
+            const board = document.getElementById('tic-tac-toe-game');
+            board.classList.remove(X_CLASS);
+            board.classList.remove(O_CLASS);
+            if (circleTurn) {
+                board.classList.add(O_CLASS);
+            } else {
+                board.classList.add(X_CLASS);
+            }
+        }
+
+        function checkWin(currentClass) {
+            return WINNING_COMBINATIONS.some(combination => {
+                return combination.every(index => {
+                    return tttCells[index].classList.contains(currentClass);
+                });
+            });
+        }
+
+        tttRestartBtn.addEventListener('click', startTTTGame);
+
+        // Initialize Tic Tac Toe when shown
+        if (document.getElementById('tic-tac-toe-game').classList.contains('hidden') === false) {
+            startTTTGame();
+        }
+
+        // Initialize with last viewed section or home
+        const lastSection = localStorage.getItem('lastSection') || 'home';
+        showSection(lastSection);
+        document.querySelector(`.nav-item[data-section="${lastSection}"]`).classList.add('active');
+    </script>
+</body>
+</html>
